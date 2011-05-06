@@ -22,8 +22,12 @@ import mimetypes
 import mimetools
 import os
 import sys
+import sys
 import json
 import itertools
+
+import pycurl
+import StringIO
 
 from BeautifulSoup import BeautifulSoup
 from MultipartPostHandler import MultipartPostHandler
@@ -44,27 +48,51 @@ class LoggedIn(MooshakError):
     pass 
 
 class Mooshak:
-    cfg = {}
+    contest = None
     session = None
-    cj = cookielib.LWPCookieJar()
+    base_url = None
+    curl = None
+    quote = ':./?=&'
+    cookie_file = "moo_cookies.txt"
+    
+    def __init__(self, base_url):
+        self.base_url = base_url
+        self.curl = pycurl.Curl()
+        self.curl.setopt(pycurl.COOKIEFILE, self.cookie_file)
+        self.curl.setopt(pycurl.COOKIEJAR, self.cookie_file)
+        pass
 
-    def __init__(self, cfg):
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
-        urllib2.install_opener(opener)
-        self.cfg = cfg
+    def _sink(self, buf):
+        pass
 
-    def _get_req_handler(self, req = "", data = None, headers = {}):
-        req = urllib2.Request(self.cfg['baseurl'] + '/cgi-bin/execute/' + req,
-            data, headers)
-        handle = urllib2.urlopen(req)
-        return handle;
+    def _get_req_handler(self, req = "", data = None, headers = {}, read_fun = None):
 
+        self.curl.setopt(pycurl.URL, urllib.quote(
+            self.base_url + 'cgi-bin/execute/' + req, self.quote))
+       
+        if read_fun != None: 
+            self.curl.setopt(pycurl.WRITEFUNCTION, read_fun)
+        else:
+            self.curl.setopt(pycurl.WRITEFUNCTION, self._sink)
+
+        if data != None:
+            self.curl.setopt(pycurl.POST, 1)
+            self.curl.setopt(pycurl.POSTFIELDS, data)
+        
+        if headers != None:
+            self.curl.setopt(pycurl.HTTPHEADER, headers)
+
+        self.curl.perform()
 
     def _new_session(self):
-        req = urllib2.Request(self.cfg['baseurl'] + '/cgi-bin/execute')
-        handle = urllib2.urlopen(req)
-        url = handle.geturl()
-        self.session = url.split('/')[-1]
+        self.curl.setopt(pycurl.URL, urllib.quote(
+            self.base_url + 'cgi-bin/execute', self.quote))
+
+        self.curl.setopt(pycurl.WRITEFUNCTION, self._sink)
+
+        self.curl.setopt(pycurl.FOLLOWLOCATION, 1)
+        self.curl.perform()
+        self.session = self.curl.getinfo(pycurl.EFFECTIVE_URL).split("/")[-1]
 
     """
     Returns a dictionary of contests in the current server.
@@ -84,7 +112,7 @@ class Mooshak:
     """
     Logs into the mooshak server, using the current configuration.
     """
-    def login(self):
+    def login(self, contest, user, password):
         if (self.session == None):
             self._new_session();
         else:
@@ -94,11 +122,11 @@ class Mooshak:
         data_dict = {}
         data_dict['command'] = 'login'
         data_dict['arguments'] = ''
-        data_dict['contest'] = self.cfg['contest']
-        data_dict['user'] = self.cfg['user']
-        data_dict['password'] = self.cfg['password']
-        
-        handle = self._get_req_handler(self.session,
+        data_dict['contest'] = contest
+        data_dict['user'] = user
+        data_dict['password'] = password
+    
+        self._get_req_handler(self.session,
             urllib.urlencode(data_dict)); 
         
     """
@@ -129,7 +157,7 @@ class Mooshak:
                    'analyze':'Submit'
         }
         opener = urllib2.build_opener(MultipartPostHandler)
-        h = opener.open(self.cfg['baseurl'] + "cgi-bin/execute/" + self.session, params)
+        h = opener.open(self.base_url + "cgi-bin/execute/" + self.session, params)
         print h.read()
 
         return "Wrong Answer"
@@ -140,5 +168,5 @@ class Mooshak:
     def list_submissions(self, contest, page=0, lines=5):
         return None
 
-
+pycurl.global_init(pycurl.GLOBAL_ALL) 
 
