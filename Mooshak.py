@@ -15,25 +15,11 @@
 #
 
 import urllib
-import urllib2
-import httplib
-import cookielib
-import mimetypes
-import mimetools
 import os
 import sys
-import sys
-import json
-import itertools
-
 import pycurl
-import StringIO
 
 from BeautifulSoup import BeautifulSoup
-from MultipartPostHandler import MultipartPostHandler
-
-# TODO: out with URLLIB in with PYCURL
-# TODO: further reading: http://pycurl.sourceforge.net/
 
 class MooshakError(Exception):
     pass
