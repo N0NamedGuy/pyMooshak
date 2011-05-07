@@ -159,7 +159,6 @@ class Mooshak:
         soup = BeautifulSoup(b.getvalue())
         contest_sel = soup.findAll('select')[-1]
         contests_opt = contest_sel.findAll('option')
-        print contests_opt
 
         ret = {}
         for opt in contests_opt[1:]:
