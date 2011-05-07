@@ -27,13 +27,11 @@ class Mooshak:
     base_url = None
     curl = None
     quote = ':./?=&'
-    cookie_file = "moo_cookies.txt"
     
     def __init__(self, base_url):
         self.base_url = base_url
         self.curl = pycurl.Curl()
-        self.curl.setopt(pycurl.COOKIEFILE, self.cookie_file)
-        self.curl.setopt(pycurl.COOKIEJAR, self.cookie_file)
+        self.curl.setopt(pycurl.COOKIEFILE, "")
 
     def _sink(self, buf):
         pass
