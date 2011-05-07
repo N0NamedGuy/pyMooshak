@@ -148,7 +148,12 @@ class Mooshak:
     """
     def list_submissions(self, contest, page=0, lines=5):
         self._new_session()
-        self._get_req_handler(self.session + '?login', 'contest=%s&user=&password=')
+
+        data_dict = { 'contest': contest,
+                      'user' : '',
+                      'passowrd' : ''};
+
+        self._get_req_handler(self.session + '?login', urllib.urlencode(data_dict))
         self._get_req_handler(self.session + '?guest')
 
         b = StringIO()
