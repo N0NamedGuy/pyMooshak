@@ -1,0 +1,64 @@
+PyMooshak
+by David Serrano <david.nonamedguy@gmail.com>
+
+Thank you in your interest in using PyMooshak! I'll try to explain what this
+software does, and how it can assist you in dodging resource-hungry webrowsers,
+and submiting your problems to a mooshak platform.
+
+= DEPENDENCIES =
+
+First of all ensure that you have pyCurl installed on your machine. Most Linux
+distros have pyCurl in their repos. In Arch Linux you can get this library by
+issuing (as root)
+
+    pacman -S python-pycurl
+
+PyMooshak also depends on the BeautifulSoup library, and it comes bundled.
+
+= USAGE =
+
+First of all, you'll need a mooshak.json file to be inside your coding directory.
+This file will contain all the data that the Mooshak server needs to know.
+It will contain the mooshak url, your credentials (user name and password),
+the contest you are participating and the problem you are trying to solve.
+
+It has this format:
+
+{
+    "baseurl": "http://example.com/~mooshak/",
+    "contest": "sample1",
+    "user": "user",
+    "password": "amazinglybigpassword",
+    "problem": "prob1"
+}
+
+I think this JSON file can talk by itself (and you don't need to know JSON =P).
+Now, the contest and problem IDs can be retrieved with:
+
+    pymooshak contests              # Lists running contests
+    pymooshak problems <contest>    # Lists problems in a running contest
+
+For these commands to run correctly, you need at least to have the baseurl
+specified in the mooshak.json file.
+
+If you run the `pymooshak contests` command, you may get an output similiar to
+this:
+
+    sample1: Sample Contest 1
+    sample2: Sample Contest 2
+
+In the first line, "sample1" is a contest ID, and "Sample Contest 1" is the
+contest name that you see when using the Mooshak web interface.
+
+The `pymooshak problems` command is similar to the `pymooshak contests`. The
+only difference is that you must pass a contest ID. Imagine that you've run
+`pymooshak problems sample1`, and you got this output:
+
+    prob1: A
+    prob2: B
+
+What comes before ':' is the problem ID, what comes after ':' is the name that
+you see in the Mooshak web interface.
+
+If you have any doubts about using this, or if you have a better usage method,
+please e-mail me. This is best CLI that I could come up with... =(

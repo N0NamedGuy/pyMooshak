@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 #
-# (C) 2011 David Miguel de Araújo Serrano
+# (C) 2011 David Miguel de Araujo Serrano
 #
 # This file is part of pyMooshak.
 # 
