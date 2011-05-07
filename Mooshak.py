@@ -151,7 +151,6 @@ class Mooshak:
     The key is the contest real name, the value is the contest description
     """
     def list_contests(self):
-<<<<<<< HEAD
         self._new_session()
 
         b = StringIO()
@@ -166,9 +165,6 @@ class Mooshak:
             ret[opt['value']] = str(opt.string).rstrip()
 
         return ret        
-=======
-        return {}
->>>>>>> parent of 2ffc2b7... List contest done
 
     """
     Returns a dictionary of problems from a specified contest, in the current
