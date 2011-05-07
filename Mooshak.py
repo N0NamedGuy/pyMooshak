@@ -98,6 +98,29 @@ class Mooshak:
 
         return h3
 
+    def _get_submission_list(self, html):
+        soup = BeautifulSoup(html)
+        print soup.prettify()
+        table = soup.findAll('table')[0]
+        trows = table.findAll('tr')[1:]
+
+        ret = []
+        for row in trows:
+            divs = row.findAll('td')
+
+            dict = {}
+            dict['number'] = divs[0].findAll('b')[0].string
+            dict['time'] = divs[1].string
+            dict['team'] = divs[3].findAll('font')[0].string 
+            dict['problem'] = divs[4].findAll('font')[0].string 
+            dict['language']= divs[5].string 
+            dict['result']= divs[6].findAll('font')[0].string 
+            dict['state']= divs[7].findAll('font')[0].string 
+
+            ret.append(dict)
+
+        return ret
+
     """
     Submits a solution. Returns a string containing the submissions result.
     Note that to know if the submission was accepted (or not), you must
@@ -169,10 +192,7 @@ class Mooshak:
         self._get_req_handler(self.session + '?' + data,
             read_fun = b.write)
         
-        print b.getvalue()
-
-
-        return None
+        return self._get_submission_list(b.getvalue())
 
     """
     Returns the last found result for a specified user on a specified contest
