@@ -68,7 +68,8 @@ class Mooshak:
         self.curl.setopt(pycurl.FOLLOWLOCATION, 1)
 
         self.curl.perform()
-        self.session = self.curl.getinfo(pycurl.EFFECTIVE_URL).split("/")[-1]
+        self.session = self.curl.getinfo(
+            pycurl.EFFECTIVE_URL).split("/")[-1]
 
     def _login(self, contest, user, password):
         if (self.session == None):
@@ -85,6 +86,16 @@ class Mooshak:
         
         self._get_req_handler(self.session,
             urllib.urlencode(data_dict)); 
+
+    def _guest_session(self, contest):
+        self._new_session()
+
+        data_dict = { 'contest': contest };
+        self._get_req_handler(self.session + '?login',
+            urllib.urlencode(data_dict))
+        self._get_req_handler(self.session + '?guest')
+        pass
+        
         
     def _get_submission_response(self, html):
         soup = BeautifulSoup(html)
@@ -169,21 +180,26 @@ class Mooshak:
     server.
     The key is the problem real name, the value is the problem description
     """
-    def list_problems(self, contest, problem): 
-        return {}
+    def list_problems(self, contest): 
+        self._guest_session(contest)
+        b = StringIO()
+        self._get_req_handler(self.session + '?vtools', read_fun=b.write)
+        
+        soup = BeautifulSoup(b.getvalue())
+        selects = soup.findAll('select')
+        probs_opt = selects[1].findAll('option') 
+
+        ret = {}
+        for opt in probs_opt:
+            ret[opt['value']] = str(opt.string)
+    
+        return ret
 
     """
     Lists submissions made into a specific contest.
     """
     def list_submissions(self, contest, page=0, lines=5):
-        self._new_session()
-
-        data_dict = { 'contest': contest,
-                      'user' : '',
-                      'passowrd' : ''};
-
-        self._get_req_handler(self.session + '?login', urllib.urlencode(data_dict))
-        self._get_req_handler(self.session + '?guest')
+        self._guest_session(contest)
 
         b = StringIO()
         data = ('all_problems=on' +
