@@ -23,7 +23,6 @@ from StringIO import StringIO
 from BeautifulSoup import BeautifulSoup
 
 class Mooshak:
-    contest = None
     session = None
     base_url = None
     curl = None
@@ -44,9 +43,6 @@ class Mooshak:
 
         self.curl.setopt(pycurl.URL, urllib.quote(
             self.base_url + 'cgi-bin/execute/' + req, self.quote))
-
-        print urllib.quote(
-            self.base_url + 'cgi-bin/execute/' + req, self.quote)
 
         if read_fun != None: 
             self.curl.setopt(pycurl.WRITEFUNCTION, read_fun)
@@ -100,7 +96,6 @@ class Mooshak:
 
     def _get_submission_list(self, html):
         soup = BeautifulSoup(html)
-        print soup.prettify()
         table = soup.findAll('table')[0]
         trows = table.findAll('tr')[1:]
 
@@ -156,7 +151,21 @@ class Mooshak:
     The key is the contest real name, the value is the contest description
     """
     def list_contests(self):
-        return {}
+        self._new_session()
+
+        b = StringIO()
+        self._get_req_handler(self.session + '?login', read_fun = b.write)
+        
+        soup = BeautifulSoup(b.getvalue())
+        contest_sel = soup.findAll('select')[-1]
+        contests_opt = contest_sel.findAll('option')
+        print contests_opt
+
+        ret = {}
+        for opt in contests_opt[1:]:
+            ret[opt['value']] = str(opt.string).rstrip()
+
+        return ret        
 
     """
     Returns a dictionary of problems from a specified contest, in the current
@@ -197,8 +206,14 @@ class Mooshak:
     """
     Returns the last found result for a specified user on a specified contest
     """
-    def get_last_result(self, contest, user):
-        return ""
+    def get_last_result(self, contest, user, maxlines=100):
+        subs = self.list_submissions(contest, 0, maxlines)
+        
+        for s in subs:
+
+            suser = '_'.join(s['team'].split(' ')[1].split(' '))
+            if suser == user:
+                return s
 
 pycurl.global_init(pycurl.GLOBAL_ALL) 
 
