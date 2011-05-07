@@ -1,18 +1,21 @@
 #!/usr/bin/env python2
-
-####
-# 05/2011 David Serrano <david.nonamedguy@gmail.com>
-# 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-# 
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
 #
+# (C) 2011 David Miguel de Araújo Serrano
+#
+# This file is part of pyMooshak.
+# 
+# pyMooshak is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# pyMooshak is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with PyMooshak.  If not, see <http://www.gnu.org/licenses/>.
 
 import urllib
 import os
@@ -131,7 +134,6 @@ class Mooshak:
     call get_last_result()
     """
     def submit(self, contest, user, password, problem, file_path):
-
         self._login(contest, user, password)
 
         params = { 'command': 'analyze',
@@ -227,6 +229,8 @@ class Mooshak:
             suser = '_'.join(s['team'].split(' ')[1].split(' '))
             if suser == user:
                 return s
+
+        return None
 
 pycurl.global_init(pycurl.GLOBAL_ALL) 
 
