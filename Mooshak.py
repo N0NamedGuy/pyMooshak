@@ -65,7 +65,7 @@ class Mooshak:
     def _sink(self, buf):
         pass
 
-    def _get_req_handler(self, req = "", data = None, headers = {}, read_fun = None):
+    def _get_req_handler(self, req = "", data = None, headers = [], read_fun = None):
 
         self.curl.setopt(pycurl.URL, urllib.quote(
             self.base_url + 'cgi-bin/execute/' + req, self.quote))
@@ -79,8 +79,7 @@ class Mooshak:
             self.curl.setopt(pycurl.POST, 1)
             self.curl.setopt(pycurl.POSTFIELDS, data)
         
-        if headers != None:
-            self.curl.setopt(pycurl.HTTPHEADER, headers)
+        self.curl.setopt(pycurl.HTTPHEADER, headers)
 
         self.curl.perform()
 
@@ -125,7 +124,8 @@ class Mooshak:
         data_dict['contest'] = contest
         data_dict['user'] = user
         data_dict['password'] = password
-    
+        
+        
         self._get_req_handler(self.session,
             urllib.urlencode(data_dict)); 
         
@@ -144,9 +144,6 @@ class Mooshak:
     Submits a solution. Returns a string containing the submissions result.
     """
     def submit(self, contest, problem, file_path):
-        # TODO: The parameters MUST be sent in the "order" specified in params.
-        # TODO: Find a way to deal with binary data
-
 
         if (self.session == None):
             raise NotLoggedIn
@@ -156,9 +153,18 @@ class Mooshak:
                    'program' : file(file_path, 'rb'),
                    'analyze':'Submit'
         }
-        opener = urllib2.build_opener(MultipartPostHandler)
-        h = opener.open(self.base_url + "cgi-bin/execute/" + self.session, params)
-        print h.read()
+
+        self.curl.setopt(pycurl.URL, urllib.quote(
+            self.base_url + 'cgi-bin/execute/' + self.session, self.quote))
+
+        self.curl.setopt(pycurl.HTTPPOST, [
+            ('command', 'analyze'),
+            ('problem', problem),
+            ('program', (self.curl.FORM_FILE, file_path)),
+            ('analyze', 'Submit')])
+
+        self.curl.setopt(pycurl.WRITEFUNCTION, self._sink)
+        self.curl.perform()
 
         return "Wrong Answer"
 
